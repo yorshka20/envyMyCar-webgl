@@ -1,31 +1,27 @@
 import { Game } from './game';
+import { Triangle } from './triangle';
 
 type HandleKeyCallback = (on: boolean) => void;
 
-interface NvmcObject {
-  vertexBuffer: WebGLBuffer | null;
-  vertices: Float32Array;
-  indexBufferTriangles: WebGLBuffer | null;
-  triangleIndices: Uint16Array;
-  indexBuffer: WebGLBuffer | null;
-  indexBufferEdges: WebGLBuffer | null;
-
-  numVertices: number;
-  numTriangles: number;
-}
-
 export class NvmcClient {
   private game: Game;
+  private gl: WebGL2RenderingContext;
+  private triangle: Triangle;
 
   private handleKeyMap: Record<string, HandleKeyCallback> = {};
 
-  constructor() {
+  constructor(gl: WebGL2RenderingContext) {
     this.game = new Game();
+    this.triangle = new Triangle();
 
-    this.onInitialize();
+    this.gl = gl;
+
+    this.triangle.init(gl);
+
+    this.initialize();
   }
 
-  onInitialize() {
+  initialize() {
     this.log('onInitialize');
 
     this.handleKey('w', (on: boolean) => {
@@ -40,16 +36,21 @@ export class NvmcClient {
     this.handleKey('d', (on: boolean) => {
       this.game.setState('playerSteerRight', on);
     });
+
+    // this.stack = new SpiderGL.SglMatrixStack();
+    // this.uniformShader = new SpiderGL.uniformShader(this.gl);
+    this.initializeObjects(this.gl);
   }
 
-  createObjectBuffer(gl: WebGL2RenderingContext, object: NvmcObject) {
-    object.vertexBuffer = gl.createBuffer();
+  initializeObjects(gl: WebGL2RenderingContext) {
+    this.createObjectBuffer(gl, this.triangle);
+  }
 
+  createObjectBuffer(gl: WebGL2RenderingContext, object: Triangle) {
     gl.bindBuffer(gl.ARRAY_BUFFER, object.vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, object.vertices, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    object.indexBufferTriangles = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBufferTriangles);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, object.triangleIndices, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
@@ -65,7 +66,6 @@ export class NvmcClient {
       edges[i * 6 + 5] = object.triangleIndices[i * 3 + 2];
     }
 
-    object.indexBufferEdges = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBufferEdges);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, edges, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
