@@ -1,14 +1,4 @@
-interface NvmcObject {
-  vertices: Float32Array;
-  triangleIndices: Uint16Array;
-
-  vertexBuffer: WebGLBuffer | null;
-  indexBufferTriangles: WebGLBuffer | null;
-  indexBufferEdges: WebGLBuffer | null;
-
-  numVertices: number;
-  numTriangles: number;
-}
+import type { NvmcObject } from './base-shape';
 
 export class Triangle implements NvmcObject {
   name: string = 'Triangle';

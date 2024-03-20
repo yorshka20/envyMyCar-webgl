@@ -1,7 +1,7 @@
 import { UniformShader } from '../shaders/uniform-shader';
 import type { SelectWindowType } from '../types';
 import { Game } from './game';
-import { Triangle } from './triangle';
+import { Triangle } from './shape/triangle';
 
 type HandleKeyCallback = (on: boolean) => void;
 
