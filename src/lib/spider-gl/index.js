@@ -17408,3 +17408,5 @@ SpiderGL.UserInterface.handleCanvasOnLoad = function (canvas, handler, options) 
   window.addEventListener('load', doHandle, false);
   return true;
 };
+
+export default SpiderGL;
