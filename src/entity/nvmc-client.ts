@@ -1,3 +1,4 @@
+import type { SelectWindowType } from '../types';
 import { Game } from './game';
 import { Triangle } from './triangle';
 
@@ -8,15 +9,19 @@ export class NvmcClient {
   private gl: WebGL2RenderingContext;
   private triangle: Triangle;
 
+  private stack: SelectWindowType<'SglMatrixStack'>;
+  private uniformShader: SelectWindowType<'uniformShader'>;
+
   private handleKeyMap: Record<string, HandleKeyCallback> = {};
 
   constructor(gl: WebGL2RenderingContext) {
     this.game = new Game();
-    this.triangle = new Triangle();
-
     this.gl = gl;
 
+    this.triangle = new Triangle();
     this.triangle.init(gl);
+    this.stack = new window.SglMatrixStack();
+    this.uniformShader = new window.uniformShader(this.gl);
 
     this.initialize();
   }
@@ -37,8 +42,6 @@ export class NvmcClient {
       this.game.setState('playerSteerRight', on);
     });
 
-    // this.stack = new SpiderGL.SglMatrixStack();
-    // this.uniformShader = new SpiderGL.uniformShader(this.gl);
     this.initializeObjects(this.gl);
   }
 
