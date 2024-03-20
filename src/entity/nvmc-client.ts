@@ -1,3 +1,4 @@
+import { UniformShader } from '../shaders/uniform-shader';
 import type { SelectWindowType } from '../types';
 import { Game } from './game';
 import { Triangle } from './triangle';
@@ -10,7 +11,7 @@ export class NvmcClient {
   private triangle: Triangle;
 
   private stack: SelectWindowType<'SglMatrixStack'>;
-  private uniformShader: SelectWindowType<'uniformShader'>;
+  private uniformShader: UniformShader;
 
   private handleKeyMap: Record<string, HandleKeyCallback> = {};
 
@@ -21,7 +22,7 @@ export class NvmcClient {
     this.triangle = new Triangle();
     this.triangle.init(gl);
     this.stack = new window.SglMatrixStack();
-    this.uniformShader = new window.uniformShader(this.gl);
+    this.uniformShader = new UniformShader(this.gl);
 
     this.initialize();
   }
@@ -72,6 +73,30 @@ export class NvmcClient {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBufferEdges);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, edges, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  }
+
+  drawObjects(gl: WebGL2RenderingContext, object: Triangle, fillColor: Float32List, lineColor: Float32List) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, object.vertexBuffer);
+    gl.enableVertexAttribArray(this.uniformShader.aPositionIndex);
+    gl.vertexAttribPointer(this.uniformShader.aPositionIndex, 3, gl.FLOAT, false, 0, 0);
+
+    gl.enable(gl.POLYGON_OFFSET_FILL);
+
+    gl.polygonOffset(1.0, 1.0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexBufferTriangles);
+    // fillColor = [1.0, 0.0, 0.0, 1.0];
+    gl.uniform4fv(this.uniformShader.uColorLocation, fillColor);
+    gl.drawElements(gl.TRIANGLES, object.triangleIndices.length, gl.UNSIGNED_SHORT, 0);
+    gl.disable(gl.POLYGON_OFFSET_FILL);
+
+    gl.uniform4fv(this.uniformShader.uColorLocation, lineColor);
+    gl.drawElements(gl.LINES, object.numTriangles * 3 * 2, gl.UNSIGNED_SHORT, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    gl.disableVertexAttribArray(this.uniformShader.aPositionIndex);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
   private handleKey(key: string, callback: HandleKeyCallback) {

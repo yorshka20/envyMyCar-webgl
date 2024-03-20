@@ -2,7 +2,7 @@
 
 declare global {
   interface Window {
-    uniformShader: new (gl: WebGL2RenderingContext) => UniformShader;
+    // uniformShader: new (gl: WebGL2RenderingContext) => UniformShader;
   }
 }
 
